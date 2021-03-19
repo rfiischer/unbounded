@@ -1,9 +1,14 @@
+"""
+Try different model, with different gamma_1 and gamma_-1
+
+It turns out not to be the right model
+"""
+
 import numpy as np
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from scipy.optimize import fmin_tnc
 
-from functions import complex_plot
 from functions import cost_function1
 
 
@@ -19,13 +24,13 @@ mask1 = (thetas == 1).astype(np.float64)
 mask2 = (thetas == -1).astype(np.float64)
 
 # Assemble the vector of the samples h[3]
-test_len = 2 * N
-h0 = h_array[3, :test_len]
+test = np.arange(0, 2 * N)
+h0 = h_array[3, test]
 
 # Perform regression
 norm = np.sum(np.abs(h0 - np.average(h0)) ** 2)
-t0 = np.concatenate(([1.5], 0.0005 * np.random.randn(4096 * 2)))
-sol, nit, rc = fmin_tnc(lambda t: cost_function1(t, h0, mask1[:, :test_len], mask2[:, :test_len]),
+t0 = np.concatenate(([1], 0.0005 * np.random.randn(4096 * 2)))
+sol, nit, rc = fmin_tnc(lambda t: cost_function1(t, h0, mask1[:, test], mask2[:, test]),
                         t0)
 
 # Get solution
