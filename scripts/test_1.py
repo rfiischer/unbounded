@@ -29,7 +29,7 @@ pilotMatrix4N = np.float64(pilotMatrix4N)
 # You can test wether the amplitude is different for +1 or -1
 # It is sufficient to only change one value, since a common ratio can be factored in the coefficients
 pilotMatrix4N[pilotMatrix4N == 1] = 1
-configs = pilotMatrix4N[:, :N]
+configs = pilotMatrix4N[:, :N].T
 
 # Assemble the vector of the samples h[3]
 h0 = h_array[3, :N]
