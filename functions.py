@@ -92,4 +92,4 @@ def test_grad(func, t0, r=range(10)):
         gra.append((val1 - val2) / (2 * delta))
         error[i] -= delta
 
-    print(np.max(grad[:len(gra)] - gra))
+    print(f"Gradient error: {np.max(grad[r] - gra)}")
