@@ -31,8 +31,9 @@ pilotMatrix4N = np.float64(pilotMatrix4N)
 pilotMatrix4N[pilotMatrix4N == 1] = 1
 configs = pilotMatrix4N[:, :N].T
 
-# Assemble the vector of the samples h[3]
-h0 = h_array[3, :N]
+# Assemble the vector of the samples h[k]
+k = 5
+h0 = h_array[k, :N]
 
 # Solve linear system
 configs_inv = np.linalg.inv(configs)
@@ -43,7 +44,7 @@ c = configs_inv @ h0
 # Test in remaining data
 test_configs = pilotMatrix4N
 h0_est = test_configs.T @ c
-h0_tru = h_array[3, :]
+h0_tru = h_array[k, :]
 error = np.sum(np.abs(h0_tru - h0_est) ** 2) / np.sum(np.abs(h0_tru - np.average(h0)) ** 2)
 
 plt.plot(np.abs(h0_est), 'ro', label='estimated')
