@@ -79,6 +79,72 @@ def cost_function2(p, h, m1, m2):
     return cost, gradient
 
 
+def cost_function3(p, h, n, w):
+
+    rec = p[:n]
+    imc = p[n:2 * n]
+    red = p[2 * n]
+    imd = p[2 * n + 1]
+
+    c = rec + 1j * imc
+    d = red + 1j * imd
+
+    s = c @ w
+    h_est = s + d
+    err = np.abs(h_est) ** 2 - np.abs(h) ** 2
+
+    cost = 1 / 2 * np.sum(err ** 2)
+
+    gradient = np.zeros_like(p)
+    gradient[:n] = (2 * red * w + 2 * w * s.real) @ err
+    gradient[n:2 * n] = (2 * imd * w + 2 * w * s.imag) @ err
+    gradient[2 * n] = (2 * red + 2 * s.real) @ err
+    gradient[2 * n + 1] = (2 * imd + 2 * s.imag) @ err
+
+    return cost, gradient
+
+
+def cost_function4(t, h, m1, m2):
+
+    # Get params
+    n, d = m1.shape
+
+    # Get scale factor (when theta = 1)
+    a1 = t[0]
+
+    # Get real and imaginary parts of Cn
+    re = t[1:n + 1]
+    im = t[n + 1:2 * n + 1]
+
+    # Get the direct path
+    red = t[2 * n + 1]
+    imd = t[2 * n + 2]
+
+    # Scale theta when theta == 1
+    x = a1 * m1 - m2
+
+    # Compute real and imaginary parts of h
+    reh = x.T @ re
+    imh = x.T @ im
+
+    # Compute usefull vectors
+    r_e = (reh + red - h.real)
+    i_e = (imh + imd - h.imag)
+
+    # Compute cost
+    cost = 1 / 2 * (np.sum(r_e ** 2) + np.sum(i_e ** 2))
+
+    # Compute gradient
+    gradient = np.zeros_like(t)
+    gradient[0] = r_e @ (m1.T @ re) + i_e @ (m1.T @ im)
+    gradient[1:n + 1] = r_e @ x.T
+    gradient[n + 1:2 * n + 1] = i_e @ x.T
+    gradient[2 * n + 1] = np.sum(r_e)
+    gradient[2 * n + 2] = np.sum(i_e)
+
+    return cost, gradient
+
+
 def test_grad(func, t0, r=range(10)):
     _, grad = func(t0)
     error = np.zeros_like(t0)

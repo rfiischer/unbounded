@@ -24,7 +24,7 @@ p2 = pilotMatrix4N[:, N:2 * N]
 p3 = pilotMatrix4N[:, 2 * N:3 * N]
 p4 = pilotMatrix4N[:, 3 * N:]
 
-k = 4
+k = 3
 h1 = h_array[k, :N]
 h2 = h_array[k, N:2 * N]
 h3 = h_array[k, 2 * N: 3 * N]
@@ -33,6 +33,10 @@ h4 = h_array[k, 3 * N:]
 plt.figure()
 plt.plot(h1.real)
 plt.plot(h2.real)
+
+plt.figure()
+plt.plot(h1.imag)
+plt.plot(h2.imag)
 
 plt.figure()
 plt.plot(h1.real)
@@ -53,3 +57,15 @@ plt.plot(np.abs(h3))
 plt.figure()
 plt.plot(np.abs(h1))
 plt.plot(np.abs(h4))
+
+plt.figure()
+plt.plot(np.angle(h1))
+plt.plot(np.angle(h2))
+
+plt.figure()
+plt.plot(np.angle(h1))
+plt.plot(np.angle(h3))
+
+plt.figure()
+plt.plot(np.angle(h1))
+plt.plot(np.angle(h4))

@@ -47,8 +47,9 @@ h0_est = test_configs.T @ c
 h0_tru = h_array[k, :]
 error = np.sum(np.abs(h0_tru - h0_est) ** 2) / np.sum(np.abs(h0_tru - np.average(h0)) ** 2)
 
-plt.plot(np.abs(h0_est), 'ro', label='estimated')
-plt.plot(np.abs(h0_tru), 'b*', label='true')
+plt.plot(np.abs(h0_est), 'r', label='estimated')
+plt.plot(np.abs(h0_tru), 'b', label='true')
+plt.legend()
 
 # Try to optimize
 c = c.reshape((-1, 1))
