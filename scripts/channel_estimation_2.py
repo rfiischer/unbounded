@@ -28,6 +28,13 @@ h_array = iF @ receivedSignal4N / transmitSignal[0, 0]
 hf_array = F @ h_array
 
 
+# Estimate variance
+z_est = transmitSignal * hf_array
+var = 1 / 2 * np.average(np.abs(receivedSignal4N - z_est) ** 2, axis=0)
+power = np.average(np.abs(z_est) ** 2, axis=0)
+snr = 10 * np.log10(power / (2 * var))
+
+
 savemat('../datasets/h_estimated.mat', {'h_array': h_array, 'hf_array': hf_array,
                                         'M': M, 'K': K, 'N': N, 'pilotMatrix4N': pilotMatrix4N})
 
@@ -55,3 +62,8 @@ ax1.set_title(f'Configuration with peak h: {ex}')
 ax3.set_title(f'Configuration with peak h: {ex}')
 
 plt.show()
+
+# Plot SNR
+fig, ax = plt.subplots()
+ax.plot(snr)
+ax.set_ylabel('SNR (dB)')
