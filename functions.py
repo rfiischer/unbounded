@@ -104,24 +104,18 @@ def cost_function3(p, h, n, w):
     return cost, gradient
 
 
-def cost_function4(t, h, m1, m2):
+def cost_function4(t, h, x):
 
     # Get params
-    n, d = m1.shape
-
-    # Get scale factor (when theta = 1)
-    a1 = t[0]
+    n, _ = x.shape
 
     # Get real and imaginary parts of Cn
-    re = t[1:n + 1]
-    im = t[n + 1:2 * n + 1]
+    re = t[0:n]
+    im = t[n:2 * n]
 
     # Get the direct path
-    red = t[2 * n + 1]
-    imd = t[2 * n + 2]
-
-    # Scale theta when theta == 1
-    x = a1 * m1 - m2
+    red = t[2 * n]
+    imd = t[2 * n + 1]
 
     # Compute real and imaginary parts of h
     reh = x.T @ re
@@ -136,11 +130,10 @@ def cost_function4(t, h, m1, m2):
 
     # Compute gradient
     gradient = np.zeros_like(t)
-    gradient[0] = r_e @ (m1.T @ re) + i_e @ (m1.T @ im)
-    gradient[1:n + 1] = r_e @ x.T
-    gradient[n + 1:2 * n + 1] = i_e @ x.T
-    gradient[2 * n + 1] = np.sum(r_e)
-    gradient[2 * n + 2] = np.sum(i_e)
+    gradient[0:n] = r_e @ x.T
+    gradient[n:2 * n] = i_e @ x.T
+    gradient[2 * n] = np.sum(r_e)
+    gradient[2 * n + 1] = np.sum(i_e)
 
     return cost, gradient
 
@@ -159,3 +152,5 @@ def test_grad(func, t0, r=range(10)):
         error[i] -= delta
 
     print(f"Gradient error: {np.max(grad[r] - gra)}")
+    print(f"Numerical grad: \n{np.array(gra)}")
+    print(f"Analytical grad: \n{grad[r]}")

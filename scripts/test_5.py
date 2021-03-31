@@ -9,7 +9,7 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from scipy.optimize import fmin_tnc
 
-from functions import cost_function4, test_grad
+from functions import cost_function4
 
 
 # Load data
@@ -20,31 +20,53 @@ h_array = data['h_array']
 M = data['M'][0, 0]
 N = data['N'][0, 0]
 thetas = data['pilotMatrix4N'].astype(np.float64)
-mask1 = (thetas == 1).astype(np.float64)
-mask2 = (thetas == -1).astype(np.float64)
+k = 5
+hk = h_array[k, :]
 
-# Assemble the vector of the samples h[3]
-test = np.arange(0, 2 * N)
-factor = np.max(np.abs(h_array[3, test]))
-h0 = h_array[3, test] / factor
 
-# Perform regression
-t0 = np.concatenate(([1], 0.0005 * np.random.randn(4096 * 2), [1, 1]))
-sol, nit, rc = fmin_tnc(lambda t: cost_function4(t, h0, mask1[:, test], mask2[:, test]),
-                        t0)
+def test_model(size):
 
-# Get solution
-a = sol[0]
-c = (sol[1:N + 1] + 1j * sol[N + 1:2 * N + 1]) * factor
-d = (sol[2 * N + 1] + 1j * sol[2 * N + 2]) * factor
+    # Assemble the vector of the samples h[k]
+    test = np.arange(0, size)
+    factor = np.max(np.abs(hk[test]))
+    h0 = hk[test] / factor
 
-# Test in remaining data
-test_configs = a * mask1 - mask2
-h0_est = test_configs.T @ c + d
-h0_tru = h_array[3, :]
-norm = np.sum(np.abs(h0 - np.average(h0)) ** 2)
-error = np.sum(np.abs(h0_tru - h0_est) ** 2) / norm
+    # Perform regression
+    t0 = 0.0005 * np.random.randn(2 * N + 2)
+    sol, nit, rc = fmin_tnc(lambda t: cost_function4(t, h0, thetas[:, test]),
+                            t0)
 
-plt.plot(np.abs(h0_est), 'ro', label='estimated')
-plt.plot(np.abs(h0_tru), 'b*', label='true')
+    # Get solution
+    c = (sol[0:N] + 1j * sol[N:2 * N]) * factor
+    d = (sol[2 * N] + 1j * sol[2 * N + 1]) * factor
+
+    # Test in remaining data
+    test_configs = thetas
+    hk_est = test_configs.T @ c + d
+    norm = np.sum(np.abs(hk - np.average(hk)) ** 2)
+    error = np.sum(np.abs(hk - hk_est) ** 2) / norm
+
+    return c, d, error, hk_est
+
+
+c1, d1, e1, _ = test_model(N)
+c2, d2, e2, _ = test_model(2 * N)
+c3, d3, e3, est = test_model(4 * N)
+
+print(f"Error with N: {e1}\n"
+      f"Error with 2N: {e2}\n"
+      f"Error with 4N: {e3}\n")
+
+plt.plot(np.abs(est), 'r', label='estimated')
+plt.plot(np.abs(hk), 'b', label='true')
 plt.show()
+
+
+# Estimate linear component
+hm = (hk[:N] - hk[N:2 * N]) / 2
+c4 = thetas[:, :N] @ hm / N
+d4 = np.average(hk[:N] - hm)
+hk_est = thetas.T @ c4 + d4
+norm = np.sum(np.abs(hk - np.average(hk)) ** 2)
+e4 = np.sum(np.abs(hk - hk_est) ** 2) / norm
+print(f"Error using the linear component: {e4}")
