@@ -31,9 +31,8 @@ configs_inv = np.linalg.inv(configs)
 d = np.average(hk)
 
 # Get nonlinear behaviour
-hl = np.zeros_like(hk)
-hl[:64] = hk[:64] - hk[N // 2:N // 2 + 64] - d
 n = np.tile(hk[N // 2:] - d, 2)
+hl = hk - n - d
 
 # Get solution
 c = configs_inv @ hl
@@ -44,26 +43,6 @@ hk_est = test_configs.T @ c + d + np.tile(n, 4)
 hk_tru = h_array[k, :]
 error = np.sum(np.abs(hk_tru - hk_est) ** 2) / np.sum(np.abs(hk_tru - np.average(hk)) ** 2)
 print(f"Error considering nonlinearities: {error}")
-
-plt.figure()
-plt.plot(np.abs(hk_est), 'r', label='estimated')
-plt.plot(np.abs(hk_tru), 'b', label='true')
-plt.plot([0, len(hk_est) - 1], [np.abs(d), np.abs(d)], 'g', label='direct path')
-plt.legend()
-
-plt.figure()
-plt.plot(np.angle(hk_est), 'r', label='estimated')
-plt.plot(np.angle(hk_tru), 'b', label='true')
-plt.plot([0, len(hk_est) - 1], [np.angle(d), np.angle(d)], 'g', label='direct path')
-plt.legend()
-
-
-# Test in remaining data
-test_configs = pilotMatrix4N
-hk_est = test_configs.T @ c + d
-hk_tru = h_array[k, :]
-error = np.sum(np.abs(hk_tru - hk_est) ** 2) / np.sum(np.abs(hk_tru - np.average(hk)) ** 2)
-print(f"Error considering only linear part: {error}")
 
 plt.figure()
 plt.plot(np.abs(hk_est), 'r', label='estimated')

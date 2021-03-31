@@ -102,3 +102,6 @@ plt.figure()
 complex_plot(solution_truncated * c.flatten(), 'ro-')
 complex_plot([solution_truncated @ c], 'b*-')
 plt.title('ordered vectors and sum')
+
+plt.figure()
+plt.imshow(solution_truncated.reshape(64, 64))
