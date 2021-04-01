@@ -70,3 +70,6 @@ hk_est = thetas.T @ c4 + d4
 norm = np.sum(np.abs(hk - np.average(hk)) ** 2)
 e4 = np.sum(np.abs(hk - hk_est) ** 2) / norm
 print(f"Error using the linear component: {e4}")
+
+plt.figure()
+plt.imshow(np.abs(c4).reshape(64, 64))

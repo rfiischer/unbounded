@@ -31,7 +31,10 @@ configs_inv = np.linalg.inv(configs)
 d = np.average(hk)
 
 # Get nonlinear behaviour
-nb = (hk[N // 4:N // 2] + hk[N // 2:3 * N // 4] + hk[3 * N // 4:]) / 3
+na = hk.reshape((4, -1))
+nb = np.zeros(N // 4, dtype=complex)
+nb[:64] = np.average(na[1:, :], axis=0)[:64]
+nb[64:] = np.average(na, axis=0)[64:]
 n = np.tile(nb - d, 4)
 hl = np.zeros_like(hk)
 hl[:64] = hk[:64] - n[:64] - d

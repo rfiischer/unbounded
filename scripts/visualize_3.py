@@ -39,4 +39,10 @@ plt.plot(np.abs(h1[:N//2]))
 plt.plot(np.abs(h1[N//2:]))
 
 plt.figure()
+plt.plot(np.abs(h1[:N//4]))
+plt.plot(np.abs(h1[N//4:N//2]))
+plt.plot(np.abs(h1[N//2:3*N//4]))
+plt.plot(np.abs(h1[3*N//4:]))
+
+plt.figure()
 plt.plot(np.abs(np.correlate(hp[:64], hp)) / np.sum(np.abs(hp[:64]) ** 2))
