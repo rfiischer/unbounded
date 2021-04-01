@@ -154,3 +154,114 @@ def test_grad(func, t0, r=range(10)):
     print(f"Gradient error: {np.max(grad[r] - gra)}")
     print(f"Numerical grad: \n{np.array(gra)}")
     print(f"Analytical grad: \n{grad[r]}")
+
+
+def optimize_tap(configs, h, method, a=64):
+
+    # Solve linear system
+    configs_inv = np.linalg.inv(configs)
+    N = len(h)
+
+    if method == 'linear':
+        # Get solution
+        c = configs_inv @ h
+
+        # Optimize
+        c = c.reshape((-1, 1))
+        C = c @ np.conj(c.T)
+        R = np.real(C)
+
+        v, e = np.linalg.eig(R)
+
+        order = np.argsort(v)[::-1]
+        e = e[:, order]
+
+        solution = e[:, 0]
+        solution_truncated = np.sign(solution)
+
+        d = 0
+
+    elif method == 'linear-direct':
+        # Get direct path
+        d = np.average(h[a:])
+
+        # Get solution
+        c = configs_inv @ (h - d)
+
+        # Try to optimize
+        solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    elif method == 'nonlinear-simple-single':
+        # Get direct path
+        d = np.average(h[a:])
+
+        # Get nonlinear behaviour
+        hl = np.zeros_like(h)
+        hl[:64] = h[:64] - h[N // 2:N // 2 + 64] - d
+
+        # Get solution
+        c = configs_inv @ hl
+
+        # Try to optimize
+        solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    elif method == 'nonlinear-simple-average':
+        # Get direct path
+        d = np.average(h[a:])
+
+        # Get nonlinear behaviour
+        na = h.reshape((4, -1))
+        nb = np.zeros(N // 4, dtype=complex)
+        nb[:64] = np.average(na[1:, :], axis=0)[:64]
+        nb[64:] = np.average(na, axis=0)[64:]
+        n = np.tile(nb - d, 4)
+        hl = np.zeros_like(h)
+        hl[:64] = h[:64] - n[:64] - d
+
+        # Get solution
+        c = configs_inv @ hl
+
+        # Try to optimize
+        solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    elif method == 'nonlinear-single':
+        # Get direct path
+        d = np.average(h[a:])
+
+        # Get nonlinear behaviour
+        n = np.tile(h[N // 2:] - d, 2)
+        hl = h - n - d
+
+        # Get solution
+        c = configs_inv @ hl
+
+        # Try to optimize
+        solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    elif method == 'nonlinear-average':
+        # Get direct path
+        d = np.average(h[a:])
+
+        # Get nonlinear behaviour
+        na = h.reshape((4, -1))
+        nb = np.zeros(N // 4, dtype=complex)
+        nb[:64] = np.average(na[1:, :], axis=0)[:64]
+        nb[64:] = np.average(na, axis=0)[64:]
+        n = np.tile(nb - d, 4)
+        hl = h - n - d
+
+        # Get solution
+        c = configs_inv @ hl
+
+        # Try to optimize
+        solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    else:
+        raise ValueError("Wrong optimization method.")
+
+    return c, d, solution_truncated
