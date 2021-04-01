@@ -26,6 +26,7 @@ h3 = h_array[k, 2 * N: 3 * N]
 h4 = h_array[k, 3 * N:]
 hp1 = (h1 + h2) / 2
 hp2 = (h3 + h4) / 2
+hp = hp1 - np.average(hp1)
 
 
 # Plot
@@ -36,3 +37,6 @@ plt.plot(np.abs(hp1[N//2:]))
 plt.figure()
 plt.plot(np.abs(h1[:N//2]))
 plt.plot(np.abs(h1[N//2:]))
+
+plt.figure()
+plt.plot(np.abs(np.correlate(hp[:64], hp)) / np.sum(np.abs(hp[:64]) ** 2))
