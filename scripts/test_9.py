@@ -33,7 +33,8 @@ d = np.average(hk)
 # Get nonlinear behaviour
 nb = (hk[N // 4:N // 2] + hk[N // 2:3 * N // 4] + hk[3 * N // 4:]) / 3
 n = np.tile(nb - d, 4)
-hl = hk - n - d
+hl = np.zeros_like(hk)
+hl[:64] = hk[:64] - n[:64] - d
 
 # Get solution
 c = configs_inv @ hl
