@@ -107,7 +107,7 @@ def cost_function3(p, h, n, w):
 def cost_function4(t, h, x):
 
     # Get params
-    n, _ = x.shape
+    n = (len(t) - 2) // 2
 
     # Get real and imaginary parts of Cn
     re = t[0:n]
@@ -136,6 +136,39 @@ def cost_function4(t, h, x):
     gradient[2 * n + 1] = np.sum(i_e)
 
     return cost, gradient
+
+
+def compute_features(configs, max_dist):
+
+    s = int(np.sqrt(configs.shape[0]))
+    configs = configs.reshape((s, s, -1))
+
+    size = s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])
+    features = np.zeros((size, configs.shape[-1]))
+
+    # Feature counter
+    fc = 0
+
+    for d in range(1, max_dist + 1):
+        for i in range(s):
+            for j in range(s - d):
+                prod = configs[j, i, :] * configs[j + d, i, :]
+                features[fc, :] += prod
+
+            fc += 1
+
+        for i in range(s - d):
+            prod = configs[:, i, :] * configs[:, i + d, :]
+            features[fc, :] = np.sum(prod, axis=0)
+            fc += 1
+
+            for j in range(1, max_dist + 1):
+                prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
+                prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
+                features[fc, :] = np.sum(prod1 + prod2, axis=0)
+                fc += 1
+
+    return features
 
 
 def test_grad(func, t0, r=range(10)):
