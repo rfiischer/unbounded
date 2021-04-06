@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import fmin_tnc
 
 
 def complex_plot(a, style='ro-'):
@@ -140,15 +141,19 @@ def cost_function4(t, h, x):
 
 def compute_features(configs, max_dist):
 
+    # Setup
     s = int(np.sqrt(configs.shape[0]))
     configs = configs.reshape((s, s, -1))
-
-    size = s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])
+    size = s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])
     features = np.zeros((size, configs.shape[-1]))
 
-    # Feature counter
-    fc = 0
+    # Get linear features
+    features[:s, :] = np.sum(configs, axis=0)
 
+    # Feature counter
+    fc = s
+
+    # Get second order features
     for d in range(1, max_dist + 1):
         for i in range(s):
             for j in range(s - d):
@@ -189,13 +194,15 @@ def test_grad(func, t0, r=range(10)):
     print(f"Analytical grad: \n{grad[r]}")
 
 
-def optimize_tap(configs, h, method, a=64):
+def optimize_tap(configs, h, method, a=64, dist=3):
 
-    # Solve linear system
-    configs_inv = np.linalg.inv(configs)
     N = len(h)
 
     if method == 'linear':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get solution
         c = configs_inv @ h
 
@@ -215,6 +222,10 @@ def optimize_tap(configs, h, method, a=64):
         d = 0
 
     elif method == 'linear-direct':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get direct path
         d = np.average(h[a:])
 
@@ -226,6 +237,10 @@ def optimize_tap(configs, h, method, a=64):
         solution_truncated = np.sign(solution)
 
     elif method == 'nonlinear-simple-single':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get direct path
         d = np.average(h[a:])
 
@@ -241,6 +256,10 @@ def optimize_tap(configs, h, method, a=64):
         solution_truncated = np.sign(solution)
 
     elif method == 'nonlinear-simple-average':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get direct path
         d = np.average(h[a:])
 
@@ -261,6 +280,10 @@ def optimize_tap(configs, h, method, a=64):
         solution_truncated = np.sign(solution)
 
     elif method == 'nonlinear-single':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get direct path
         d = np.average(h[a:])
 
@@ -276,6 +299,10 @@ def optimize_tap(configs, h, method, a=64):
         solution_truncated = np.sign(solution)
 
     elif method == 'nonlinear-average':
+
+        # Solve linear system
+        configs_inv = np.linalg.inv(configs)
+
         # Get direct path
         d = np.average(h[a:])
 
@@ -292,6 +319,26 @@ def optimize_tap(configs, h, method, a=64):
 
         # Try to optimize
         solution = (c * np.conj(d)).real
+        solution_truncated = np.sign(solution)
+
+    elif method == 'second-order-simple':
+
+        # Setup
+        features = compute_features(configs, dist)
+        size = features.shape[0]
+
+        # Solve
+        factor = np.max(np.abs(h))
+        h0 = h / factor
+        t0 = 0.0005 * np.random.randn(2 * size + 2)
+        sol, nit, rc = fmin_tnc(lambda t: cost_function4(t, h0, features), t0)
+
+        nl = (sol[:size] + 1j * sol[size:2 * size]) * factor
+        c = np.tile(nl[:64], 64)
+        d = (sol[2 * size] + 1j * sol[2 * size + 1]) * factor
+
+        # Get simple solution
+        solution = (np.tile(c[:64], 64) * np.conj(d)).real
         solution_truncated = np.sign(solution)
 
     else:

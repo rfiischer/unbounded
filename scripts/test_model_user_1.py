@@ -55,7 +55,7 @@ darr = []
 sarr = []
 optimize_tap(configs, hu, method='nonlinear-average')
 methods = ['linear', 'linear-direct', 'nonlinear-simple-single', 'nonlinear-simple-average',
-           'nonlinear-single', 'nonlinear-average']
+           'nonlinear-single', 'nonlinear-average', 'second-order-simple']
 for method in methods:
 
     c, d, s = optimize_tap(configs, hu, method=method)
@@ -63,15 +63,18 @@ for method in methods:
     darr.append(d)
     sarr.append(s)
 
-fig, ax = plt.subplots(2, 3, sharex=True, sharey=True)
+fig, ax = plt.subplots(2, 4, sharex=True, sharey=True)
 ax = ax.flatten()
 for i in range(len(methods)):
     ax[i].imshow(sarr[i].real.reshape(64, 64))
     ax[i].set_title(methods[i])
 
+ax[-1].set_visible(False)
 
-fig, ax = plt.subplots(2, 3, sharex=True, sharey=True)
+fig, ax = plt.subplots(2, 4, sharex=True, sharey=True)
 ax = ax.flatten()
 for i in range(len(methods)):
     ax[i].imshow(carr[i].real.reshape(64, 64))
     ax[i].set_title(methods[i])
+
+ax[-1].set_visible(False)
