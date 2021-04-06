@@ -144,7 +144,7 @@ def compute_features(configs, max_dist):
     # Setup
     s = int(np.sqrt(configs.shape[0]))
     configs = configs.reshape((s, s, -1))
-    size = s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])
+    size = int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
     features = np.zeros((size, configs.shape[-1]))
 
     # Get linear features

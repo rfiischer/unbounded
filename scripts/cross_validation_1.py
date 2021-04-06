@@ -1,7 +1,6 @@
 import numpy as np
-from scipy.io import loadmat
+from scipy.io import loadmat, savemat
 from scipy.optimize import fmin_tnc
-import matplotlib.pyplot as plt
 
 from functions import cost_function4, compute_features
 
@@ -17,9 +16,9 @@ pilotMatrix4N = data['pilotMatrix4N']
 pilotMatrix4N = np.float64(pilotMatrix4N)
 p1 = pilotMatrix4N[:, :N]
 
-error = np.zeros((20, 7))
-noise = np.zeros((20, 7))
-for dist in range(1, 8):
+error = np.zeros((20, 9))
+noise = np.zeros((20, 9))
+for dist in range(0, 9):
 
     # Get nonlinear features
     features = compute_features(p1, dist)
@@ -42,6 +41,8 @@ for dist in range(1, 8):
         d = (sol[2 * size] + 1j * sol[2 * size + 1]) * factor
 
         est = nl @ test_features + d
-        error[k, dist - 1] = np.sum(np.abs(h_array[k, N:] - est[N:]) ** 2) / \
+        error[k, dist] = np.sum(np.abs(h_array[k, N:] - est[N:]) ** 2) / \
                              np.sum(np.abs(h_array[k, N:] - np.average(h_array[k, N:])) ** 2)
-        noise[k, dist - 1] = 1 / 2 * np.average(np.abs(est[N:] - h_array[k, N:]) ** 2) / 20000
+        noise[k, dist] = 1 / 2 * np.average(np.abs(est[N:] - h_array[k, N:]) ** 2) / 20000
+
+savemat("..\\datasets\\cross_validation_error_1.mat", {'cv_error': error, 'cv_noise': noise})
