@@ -33,7 +33,7 @@ plt.subplots_adjust(0.079, 0.11, 0.95, 0.88, 0.455, 0.2)
 fig, ax = plt.subplots(5, 10, sharex=True, sharey=True)
 for i in range(5):
     for j in range(10):
-        ax[i, j].plot(np.abs(snr[10 * i + j, :]))
+        ax[i, j].plot(snr[10 * i + j, :])
         ax[i, j].get_xaxis().set_visible(False)
         ax[i, j].set_ylim(0.7, 41)
 
