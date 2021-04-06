@@ -2,11 +2,11 @@ from scipy.io import loadmat
 import matplotlib.pyplot as plt
 import numpy as np
 
-from functions import optimize_tap, complex_plot
+from functions import optimize_tap
 
 
 # Load dataset
-h_data = loadmat("..\\datasets\\h_user.mat")
+h_data = loadmat("../../datasets/h_user.mat")
 
 
 # Unpack constants

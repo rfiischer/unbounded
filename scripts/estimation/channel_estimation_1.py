@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 # Load dataset
-dataset1 = loadmat("..\\datasets\\dataset1.mat")
+dataset1 = loadmat("../../datasets/dataset1.mat")
 
 
 # Unpack constants
@@ -80,8 +80,8 @@ for theta in range(4 * N):
     # Estimate noiseless received signal
     var_array[theta] = 1 / (2 * K) * np.sum(np.abs(zf - hf * xf) ** 2)
 
-savemat('../datasets/h_estimated.mat', {'h_array': h_array, 'hf_array': hf_array,
-                                        'M': M, 'K': K, 'N': N, 'pilotMatrix4N': pilotMatrix4N})
+savemat('../../datasets/h_estimated.mat', {'h_array': h_array, 'hf_array': hf_array,
+                                           'M': M, 'K': K, 'N': N, 'pilotMatrix4N': pilotMatrix4N})
 
 # Plot the example h with maximum peak value
 ex = np.argmax(np.max(np.abs(h_array), axis=0))

@@ -10,7 +10,7 @@ from functions import complex_plot
 
 
 # Load data
-data = loadmat("..\\datasets\\h_estimated.mat")
+data = loadmat("../../datasets/h_estimated.mat")
 
 # Load variables
 h_array = data['h_array']
@@ -36,7 +36,8 @@ nb = np.zeros(N // 4, dtype=complex)
 nb[:64] = np.average(na[1:, :], axis=0)[:64]
 nb[64:] = np.average(na, axis=0)[64:]
 n = np.tile(nb - d, 4)
-hl = hk - n - d
+hl = np.zeros_like(hk)
+hl[:64] = hk[:64] - n[:64] - d
 
 # Get solution
 c = configs_inv @ hl

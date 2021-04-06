@@ -7,7 +7,7 @@ from functions import cost_function4, compute_features
 
 
 # Load data
-data = loadmat("..\\datasets\\h_estimated.mat")
+data = loadmat("../../datasets/h_estimated.mat")
 
 # Load variables
 h_array = data['h_array']

@@ -4,9 +4,8 @@ from scipy.optimize import fmin_tnc
 
 from functions import cost_function4, compute_features
 
-
 # Load data
-data = loadmat("..\\datasets\\h_estimated.mat")
+data = loadmat("../../datasets/h_estimated.mat")
 
 # Load variables
 h_array = data['h_array']
@@ -25,7 +24,6 @@ for dist in range(0, 9):
     test_features = compute_features(pilotMatrix4N, dist)
 
     for k in range(20):
-
         # Log
         print(k, dist)
 
@@ -42,7 +40,8 @@ for dist in range(0, 9):
 
         est = nl @ test_features + d
         error[k, dist] = np.sum(np.abs(h_array[k, N:] - est[N:]) ** 2) / \
-                             np.sum(np.abs(h_array[k, N:] - np.average(h_array[k, N:])) ** 2)
+                         np.sum(np.abs(h_array[k, N:] - np.average(h_array[k, N:])) ** 2)
+
         noise[k, dist] = 1 / 2 * np.average(np.abs(est[N:] - h_array[k, N:]) ** 2) / 20000
 
-savemat("..\\datasets\\cross_validation_error_1.mat", {'cv_error': error, 'cv_noise': noise})
+savemat("../../datasets/cross_validation_error_1.mat", {'cv_error': error, 'cv_noise': noise})

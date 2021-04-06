@@ -4,8 +4,8 @@ import numpy as np
 
 
 # Load dataset
-snr_data = loadmat("..\\datasets\\snr_user.mat")
-h_data = loadmat("..\\datasets\\h_user.mat")
+snr_data = loadmat("../../datasets/snr_user.mat")
+h_data = loadmat("../../datasets/h_user.mat")
 
 
 # Unpack constants
