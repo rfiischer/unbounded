@@ -139,58 +139,88 @@ def cost_function4(t, h, x):
     return cost, gradient
 
 
+def cost_function5(t, h, x):
+
+    # Get params
+    n = len(t) // 2
+
+    # Get real and imaginary parts of Cn
+    re = t[:n]
+    im = t[n:2 * n]
+
+    # Compute real and imaginary parts of h
+    reh = x.T @ re
+    imh = x.T @ im
+
+    # Compute usefull vectors
+    r_e = (reh - h.real)
+    i_e = (imh - h.imag)
+
+    # Compute cost
+    cost = 1 / 2 * (np.sum(r_e ** 2) + np.sum(i_e ** 2))
+
+    # Compute gradient
+    gradient = np.zeros_like(t)
+    gradient[0:n] = r_e @ x.T
+    gradient[n:2 * n] = i_e @ x.T
+
+    return cost, gradient
+
+
 def compute_features(configs, max_dist):
 
     # Setup
     s = int(np.sqrt(configs.shape[0]))
     configs = configs.reshape((s, s, -1))
+    size = int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])) + 1
+    features = np.zeros((size, configs.shape[-1]))
 
-    if max_dist == -1:
-        features = np.ones((1, configs.shape[-1]))
+    # Get linear features
+    features[0, :] = 1
+    features[1:s + 1, :] = np.sum(configs, axis=0)
 
-    else:
-        size = int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
-        features = np.zeros((size, configs.shape[-1]))
+    # Feature counter
+    fc = s + 1
 
-        # Get linear features
-        features[:s, :] = np.sum(configs, axis=0)
+    # Get second order features
+    for d in range(1, max_dist + 1):
+        for i in range(s):
+            for j in range(s - d):
+                prod = configs[j, i, :] * configs[j + d, i, :]
+                features[fc, :] += prod
 
-        # Feature counter
-        fc = s
+            fc += 1
 
-        # Get second order features
-        for d in range(1, max_dist + 1):
-            for i in range(s):
-                for j in range(s - d):
-                    prod = configs[j, i, :] * configs[j + d, i, :]
-                    features[fc, :] += prod
+        for i in range(s - d):
+            prod = configs[:, i, :] * configs[:, i + d, :]
+            features[fc, :] = np.sum(prod, axis=0)
+            fc += 1
 
+            for j in range(1, d + 1):
+                prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
+                prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
+                features[fc, :] = np.sum(prod1 + prod2, axis=0)
                 fc += 1
 
-            for i in range(s - d):
-                prod = configs[:, i, :] * configs[:, i + d, :]
-                features[fc, :] = np.sum(prod, axis=0)
+        for i in range(1, d):
+            for j in range(s - i):
+                prod1 = configs[:-d, j, :] * configs[d:, j + i, :]
+                prod2 = configs[d:, j, :] * configs[:-d, j + i, :]
+                features[fc, :] = np.sum(prod1 + prod2, axis=0)
                 fc += 1
-
-                for j in range(1, d + 1):
-                    prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
-                    prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
-                    features[fc, :] = np.sum(prod1 + prod2, axis=0)
-                    fc += 1
-
-            for i in range(1, d):
-                for j in range(s - i):
-                    prod1 = configs[:-d, j, :] * configs[d:, j + i, :]
-                    prod2 = configs[d:, j, :] * configs[:-d, j + i, :]
-                    features[fc, :] = np.sum(prod1 + prod2, axis=0)
-                    fc += 1
 
     return features
 
 
 def features_sizes(s, max_dist):
 
-    return int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
+    if max_dist == -1:
+        out = 1
+
+    else:
+        out = int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
+
+    return out
 
 
 def test_grad(func, t0, r=range(10)):
@@ -347,12 +377,12 @@ def optimize_tap(configs, h, method, a=64, dist=3):
         # Solve
         factor = np.max(np.abs(h))
         h0 = h / factor
-        t0 = 0.0005 * np.random.randn(2 * size + 2)
-        sol, nit, rc = fmin_tnc(lambda t: cost_function4(t, h0, features), t0)
+        t0 = 0.0005 * np.random.randn(2 * size)
+        sol, nit, rc = fmin_tnc(lambda t: cost_function5(t, h0, features), t0)
 
-        nl = (sol[:size] + 1j * sol[size:2 * size]) * factor
+        d = (sol[0] + 1j * sol[size]) * factor
+        nl = (sol[1:size] + 1j * sol[size + 1:]) * factor
         c = np.tile(nl[:64], 64)
-        d = (sol[2 * size] + 1j * sol[2 * size + 1]) * factor
 
         # Get simple solution
         solution = (np.tile(c[:64], 64) * np.conj(d)).real
