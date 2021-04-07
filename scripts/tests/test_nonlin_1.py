@@ -18,13 +18,16 @@ pilotMatrix4N = data['pilotMatrix4N']
 
 # Get nonlinear features
 pilotMatrix4N = np.float64(pilotMatrix4N)
-dist = 3
+dist = 1
 test_features = compute_features(pilotMatrix4N, dist)
-features = test_features[:, :N]
 
-k = 0
+# Training size
+ts = 3 * N // 4
+features = test_features[:, :ts]
+
+k = 19
 size = features.shape[0]
-h1 = h_array[k, :N]
+h1 = h_array[k, :ts]
 factor = np.max(np.abs(h1))
 h0 = h1 / factor
 t0 = 0.0005 * np.random.randn(2 * size + 2)
