@@ -18,11 +18,11 @@ pilotMatrix4N = data['pilotMatrix4N']
 
 # Get nonlinear features
 pilotMatrix4N = np.float64(pilotMatrix4N)
-p1 = pilotMatrix4N[:, :N]
-dist = 7
-features = compute_features(p1, dist)
+dist = 3
+test_features = compute_features(pilotMatrix4N, dist)
+features = test_features[:, :N]
 
-k = 3
+k = 0
 size = features.shape[0]
 h1 = h_array[k, :N]
 factor = np.max(np.abs(h1))
@@ -33,7 +33,6 @@ sol, nit, rc = fmin_tnc(lambda t: cost_function4(t, h0, features), t0)
 nl = (sol[:size] + 1j * sol[size:2 * size]) * factor
 d = (sol[2 * size] + 1j * sol[2 * size + 1]) * factor
 
-test_features = compute_features(pilotMatrix4N, dist)
 est = nl @ test_features + d
 error = np.sum(np.abs(h_array[k, N:] - est[N:]) ** 2) / np.sum(np.abs(h_array[k, N:] - np.average(h_array[k, N:])) ** 2)
 print(f"Error considering nonlinearities: {error}")
