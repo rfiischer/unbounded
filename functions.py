@@ -167,13 +167,25 @@ def compute_features(configs, max_dist):
             features[fc, :] = np.sum(prod, axis=0)
             fc += 1
 
-            for j in range(1, max_dist + 1):
+            for j in range(1, d + 1):
                 prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
                 prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
                 features[fc, :] = np.sum(prod1 + prod2, axis=0)
                 fc += 1
 
+        for i in range(1, d):
+            for j in range(s - i):
+                prod1 = configs[:-d, j, :] * configs[d:, j + i, :]
+                prod2 = configs[d:, j, :] * configs[:-d, j + i, :]
+                features[fc, :] = np.sum(prod1 + prod2, axis=0)
+                fc += 1
+
     return features
+
+
+def features_sizes(s, max_dist):
+
+    return int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
 
 
 def test_grad(func, t0, r=range(10)):
