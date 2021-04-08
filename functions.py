@@ -177,50 +177,46 @@ def compute_features(configs, max_dist):
 
     # Get linear features
     features[0, :] = 1
-    features[1:s + 1, :] = np.sum(configs, axis=0)
 
-    # Feature counter
-    fc = s + 1
+    if max_dist >= 0:
+        features[1:s + 1, :] = np.sum(configs, axis=0)
 
-    # Get second order features
-    for d in range(1, max_dist + 1):
-        for i in range(s):
-            for j in range(s - d):
-                prod = configs[j, i, :] * configs[j + d, i, :]
-                features[fc, :] += prod
+        # Feature counter
+        fc = s + 1
 
-            fc += 1
+        # Get second order features
+        for d in range(1, max_dist + 1):
+            for i in range(s):
+                for j in range(s - d):
+                    prod = configs[j, i, :] * configs[j + d, i, :]
+                    features[fc, :] += prod
 
-        for i in range(s - d):
-            prod = configs[:, i, :] * configs[:, i + d, :]
-            features[fc, :] = np.sum(prod, axis=0)
-            fc += 1
-
-            for j in range(1, d + 1):
-                prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
-                prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
-                features[fc, :] = np.sum(prod1 + prod2, axis=0)
                 fc += 1
 
-        for i in range(1, d):
-            for j in range(s - i):
-                prod1 = configs[:-d, j, :] * configs[d:, j + i, :]
-                prod2 = configs[d:, j, :] * configs[:-d, j + i, :]
-                features[fc, :] = np.sum(prod1 + prod2, axis=0)
+            for i in range(s - d):
+                prod = configs[:, i, :] * configs[:, i + d, :]
+                features[fc, :] = np.sum(prod, axis=0)
                 fc += 1
+
+                for j in range(1, d + 1):
+                    prod1 = configs[:-j, i, :] * configs[j:, i + d, :]
+                    prod2 = configs[j:, i, :] * configs[:-j, i + d, :]
+                    features[fc, :] = np.sum(prod1 + prod2, axis=0)
+                    fc += 1
+
+            for i in range(1, d):
+                for j in range(s - i):
+                    prod1 = configs[:-d, j, :] * configs[d:, j + i, :]
+                    prod2 = configs[d:, j, :] * configs[:-d, j + i, :]
+                    features[fc, :] = np.sum(prod1 + prod2, axis=0)
+                    fc += 1
 
     return features
 
 
 def features_sizes(s, max_dist):
 
-    if max_dist == -1:
-        out = 1
-
-    else:
-        out = int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)]))
-
-    return out
+    return int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])) + 1
 
 
 def test_grad(func, t0, r=range(10)):
