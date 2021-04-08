@@ -12,6 +12,7 @@ s = 64
 h_user = data['h_user']
 M = data['M'][0, 0]
 N = data['N'][0, 0]
+K = data['K'][0, 0]
 pilotMatrix = np.float64(data['pilotMatrix4N'])
 
 # Compute features
@@ -78,7 +79,7 @@ for u in range(50):
 
         model[u, k, :fsize] = (sol[:fsize] + 1j * sol[fsize:]) * factor
 
-savemat('user_model1.mat', {'M': M, 'N': N, 's': s, 'ts': ts,
+savemat('user_model1.mat', {'M': M, 'N': N, 'K': K, 's': s, 'ts': ts,
                             'pilotMatrix': pilotMatrix,
                             'user_model': model,
                             'best_complexity': best_complexity,
