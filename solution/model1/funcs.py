@@ -14,7 +14,7 @@ data = loadmat(filename)
 
 P = 1
 B = 10e6
-N0 = 3e-20
+N0 = 3.1613e-20
 K = data['K'][0, 0]
 M = data['M'][0, 0]
 s = data['s'][0, 0]

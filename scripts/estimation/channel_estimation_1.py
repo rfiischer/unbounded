@@ -77,7 +77,7 @@ for theta in range(4 * N):
     # NOTE: if x is an impulse, we can discard the first samples of z (the ones with channel spread)
     # and compute the noise variance on the remaining samples (which would have zero mean) thus removing the bias
 
-    # Estimate noiseless received signal
+    # Estimate noiseless received signal (this is a biased estimator)
     var_array[theta] = 1 / (2 * K) * np.sum(np.abs(zf - hf * xf) ** 2)
 
 savemat('../../datasets/h_estimated.mat', {'h_array': h_array, 'hf_array': hf_array,
