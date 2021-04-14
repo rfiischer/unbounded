@@ -28,7 +28,7 @@ test_features = complete_features[li_idx, :]
 ts = 3 * N // 4
 features = test_features[:, :ts]
 
-k = 2
+k = 1
 size = features.shape[0]
 h1 = h_array[k, :ts]
 factor = np.max(np.abs(h1))
@@ -43,10 +43,26 @@ error = np.sum(np.abs(h_array[k, ts:] - h_est[ts:]) ** 2) / \
         np.sum(np.abs(h_array[k, ts:] - np.average(h_array[k, ts:])) ** 2)
 print(f"Error considering nonlinearities: {error}")
 
-# plt.plot(np.abs(h_array[k, :]))
-# plt.plot(np.abs(h_est))
+plt.plot(np.abs(h_array[k, :]))
+plt.plot(np.abs(h_est))
 
+# Estimate non-linear components
 nli = np.concatenate(([0], np.arange(65, 128)))
 cnl = c[nli]
 fnl = test_features[nli, :]
 nlin = cnl @ fnl
+
+# Estimate linear components
+cl = c[1:65]
+fl = test_features[1:65, :]
+lin = cl @ fl
+
+# Visualize linear component
+plt.figure()
+plt.plot(np.abs(h_array[k, :] - nlin))
+
+# Visualize skew in columns
+calt = pilotMatrix.T @ (h_array[k, :] - nlin) / 4096
+caltr = calt.reshape(64, 64)
+plt.figure()
+plt.plot(np.average(np.abs(caltr), axis=1))
