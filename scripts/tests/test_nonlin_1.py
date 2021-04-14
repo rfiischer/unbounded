@@ -3,7 +3,7 @@ from scipy.io import loadmat
 from scipy.optimize import fmin_tnc
 import matplotlib.pyplot as plt
 
-from functions import cost_function5, compute_features, li_features, features_sizes
+from functions import cost_function5, compute_features_1, li_features, features_sizes
 
 
 # Load data
@@ -19,7 +19,7 @@ pilotMatrix4N = np.float64(pilotMatrix4N)
 
 # Get nonlinear features
 max_dist = 3
-complete_features = compute_features(pilotMatrix4N, max_dist)
+complete_features = compute_features_1(pilotMatrix4N, max_dist)
 dist = 3
 complete_size = features_sizes(64, dist)
 li_idx = li_features(complete_features[:complete_size, :])

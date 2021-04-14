@@ -4,7 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-from functions import compute_features, features_sizes
+from functions import compute_features_1, features_sizes
 
 
 # Make relative paths work by loading script from everywhere
@@ -24,7 +24,7 @@ model = data['user_model']
 def rate(user, theta, complexity):
 
     size = features_sizes(s, complexity)
-    features = compute_features(theta, complexity).flatten()
+    features = compute_features_1(theta, complexity).flatten()
 
     ht = model[user, :, :size] @ features
     hf = fft(ht, n=K)

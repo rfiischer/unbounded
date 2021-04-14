@@ -167,7 +167,7 @@ def cost_function5(t, h, x):
     return cost, gradient
 
 
-def compute_features(configs, max_dist):
+def compute_features_1(configs, max_dist):
 
     # Setup
     s = int(np.sqrt(configs.shape[0]))
@@ -367,7 +367,7 @@ def optimize_tap(configs, h, method, a=64, dist=3):
     elif method == 'second-order-simple':
 
         # Setup
-        features = compute_features(configs, dist)
+        features = compute_features_1(configs, dist)
         size = features.shape[0]
 
         # Solve

@@ -2,7 +2,7 @@ import numpy as np
 from scipy.io import loadmat, savemat
 from scipy.optimize import fmin_tnc
 
-from functions import cost_function5, compute_features, features_sizes
+from functions import cost_function5, compute_features_1, features_sizes
 
 # Load data
 data = loadmat("../../datasets/h_estimated.mat")
@@ -18,7 +18,7 @@ p1 = pilotMatrix4N[:, :N]
 
 error = np.zeros((20, 9))
 noise = np.zeros((20, 9))
-test_features = compute_features(pilotMatrix4N, 8)
+test_features = compute_features_1(pilotMatrix4N, 8)
 features = test_features[:, :N]
 for dist in range(0, 9):
 
