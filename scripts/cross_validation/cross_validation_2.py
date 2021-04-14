@@ -2,7 +2,7 @@ import numpy as np
 from scipy.io import loadmat, savemat
 from scipy.optimize import fmin_tnc
 
-from functions import cost_function5, compute_features_1, features_sizes
+from functions import cost_function5, compute_features_1, features_sizes_1
 
 # Load data
 data = loadmat("../../datasets/h_estimated.mat")
@@ -27,7 +27,7 @@ features = test_features[:, :ts]
 for dist in range(0, 9):
 
     # Get nonlinear features
-    fsize = features_sizes(s, dist)
+    fsize = features_sizes_1(s, dist)
     features_d = features[:fsize, :]
     test_features_d = test_features[:fsize, :]
 

@@ -214,7 +214,7 @@ def compute_features_1(configs, max_dist):
     return features
 
 
-def features_sizes(s, max_dist):
+def features_sizes_1(s, max_dist):
 
     return int(s + s * max_dist + np.sum([(s - d) * (max_dist + 1) for d in range(1, max_dist + 1)])) + 1
 

@@ -3,7 +3,7 @@ from scipy.io import loadmat
 from scipy.optimize import fmin_tnc
 import matplotlib.pyplot as plt
 
-from functions import cost_function5, compute_features_1, features_sizes, li_features
+from functions import cost_function5, compute_features_1, features_sizes_1, li_features
 
 
 # Load data
@@ -20,7 +20,7 @@ pilotMatrix = np.float64(data['pilotMatrix4N'])
 max_dist = 3
 complete_features = compute_features_1(pilotMatrix, max_dist)
 dist = 3
-complete_size = features_sizes(64, dist)
+complete_size = features_sizes_1(64, dist)
 li_idx = li_features(complete_features[:complete_size, :])
 test_features = complete_features[li_idx, :]
 
