@@ -388,3 +388,12 @@ def optimize_tap(configs, h, method, a=64, dist=3):
         raise ValueError("Wrong optimization method.")
 
     return c, d, solution_truncated
+
+
+def li_features(feature_matrix, tol=1e-10):
+
+    q, r = np.linalg.qr(feature_matrix.T)
+
+    diagr = np.abs(np.diagonal(r))
+
+    return np.sort(np.where(diagr >= tol)[0])
