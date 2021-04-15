@@ -20,7 +20,7 @@ pilotMatrix4N = np.float64(pilotMatrix4N)
 # Get nonlinear features
 max_dist = 3
 complete_features = compute_features_1(pilotMatrix4N, max_dist)
-dist = 3
+dist = 2
 complete_size = features_sizes_1(64, dist)
 li_idx = li_features(complete_features[:complete_size, :])
 test_features = complete_features[li_idx, :]
@@ -29,7 +29,7 @@ test_features = complete_features[li_idx, :]
 ts = N
 features = test_features[:, :ts]
 
-k = 1
+k = 19
 size = features.shape[0]
 h1 = h_array[k, :ts]
 factor = np.max(np.abs(h1))
@@ -46,3 +46,14 @@ print(f"Noise power: {1 / 2 * np.average(np.abs(est[N:] - h_array[k, N:]) ** 2) 
 
 plt.plot(np.abs(h_array[k, :]))
 plt.plot(np.abs(est))
+
+# Estimate of linear and non-linear components
+nlidx = np.concatenate(([0], np.arange(65, size)))
+cnl = c[nlidx]
+fnl = features[nlidx, :]
+hnl = cnl @ fnl
+hl = h_array[k, :N] - hnl
+hl_true = (h_array[k, :N] - h_array[k, N:2*N] + pilotMatrix4N[0, 2*N:3*N] * (h_array[k, 2*N:3*N] - h_array[k, 3*N:])) / 4
+plt.figure()
+plt.plot(np.abs(hl))
+plt.plot(np.abs(hl_true))
