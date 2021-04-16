@@ -33,13 +33,13 @@ for dist in range(len(lengths)):
 def rate(user, theta, complexity):
 
     size = lengths[complexity + 1]
-    features = compute_features_1(theta, complexity).flatten()
+    features = compute_features_1(theta, complexity)
 
     ht = model[user, :, :size] @ features[sep_idxs[complexity + 1]]
-    hf = fft(ht, n=K)
+    hf = fft(ht, n=K, axis=0)
 
     # Return normalized rates
-    r = np.sum(np.log2(1 + P * np.abs(hf) ** 2 / (B * N0)))
+    r = np.sum(np.log2(1 + P * np.abs(hf) ** 2 / (B * N0)), axis=0)
 
     return r, ht, hf
 
