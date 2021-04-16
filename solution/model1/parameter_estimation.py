@@ -2,7 +2,7 @@ import numpy as np
 from scipy.io import loadmat, savemat
 from scipy.optimize import fmin_tnc
 
-from functions import cost_function5, compute_features, features_sizes
+from functions import cost_function5, compute_features_1, features_sizes_1, li_features
 
 # Load data
 data = loadmat("../../datasets/h_user.mat")
@@ -18,20 +18,26 @@ pilotMatrix = np.float64(data['pilotMatrix4N'])
 # Compute features
 ts = 3 * N // 4         # Training set size
 mo = 8                  # Max model order
-features = compute_features(pilotMatrix, mo)
+features = compute_features_1(pilotMatrix, mo)
 test_features = features[:, ts:]
 train_features = features[:, :ts]
 
 # Perform cross-validation on user data
 print("----CROSS-VALIDATION----")
 error = np.zeros((50, 20, mo + 2))
+lengths = np.zeros(mo + 2)
+idxs = []
 for u in range(50):
     for dist in range(-1, mo + 1):
 
         # Get nonlinear features
-        fsize = features_sizes(s, dist)
-        train_features_d = train_features[:fsize, :]
-        test_features_d = test_features[:fsize, :]
+        complete_size = features_sizes_1(s, dist)
+        li_idx = li_features(features[:complete_size, :])
+        idxs.extend(li_idx)
+        train_features_d = train_features[li_idx, :]
+        test_features_d = test_features[li_idx, :]
+        fsize = len(li_idx)
+        lengths[dist + 1] = fsize
 
         for k in range(20):
 
@@ -58,7 +64,8 @@ best_complexity = np.where(user_max > 1.5e-7, np.argmin(error, axis=-1), 0)
 
 # Train model on each user
 print("----TRAINING----")
-model = np.zeros((50, 20, features_sizes(s, mo)), dtype=complex)
+li_idx = li_features(features)
+model = np.zeros((50, 20, len(li_idx)), dtype=complex)
 for u in range(50):
     for k in range(20):
 
@@ -67,8 +74,10 @@ for u in range(50):
 
         # Get nonlinear features
         complexity = best_complexity[u, k] - 1
-        fsize = features_sizes(s, complexity)
-        features_d = features[:fsize, :]
+        complete_size = features_sizes_1(s, complexity)
+        li_idx = li_features(features[:complete_size, :])
+        features_d = features[li_idx, :]
+        fsize = len(li_idx)
 
         # Find solution
         h1 = h_user[u, k, :]
@@ -83,4 +92,6 @@ savemat('user_model1.mat', {'M': M, 'N': N, 'K': K, 's': s, 'ts': ts,
                             'pilotMatrix': pilotMatrix,
                             'user_model': model,
                             'best_complexity': best_complexity,
-                            'error': error})
+                            'error': error,
+                            'lengths': lengths,
+                            'idxs': idxs})

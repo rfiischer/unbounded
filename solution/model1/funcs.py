@@ -2,9 +2,8 @@ from scipy.io import loadmat
 from scipy.fft import fft
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 
-from functions import compute_features_1, features_sizes_1
+from functions import compute_features_1
 
 
 # Make relative paths work by loading script from everywhere
@@ -12,6 +11,7 @@ dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, "user_model1.mat")
 data = loadmat(filename)
 
+# Load parameters
 P = 1
 B = 10e6
 N0 = 3.1613e-20
@@ -19,35 +19,48 @@ K = data['K'][0, 0]
 M = data['M'][0, 0]
 s = data['s'][0, 0]
 model = data['user_model']
+lengths = data['lengths'][0].astype(int)
+idxs = data['idxs'][0].astype(int)
+
+# Retrieve feature indexes
+sep_idxs = []
+for dist in range(len(lengths)):
+    start = sum(lengths[:dist])
+    sep_idxs.append(np.array(idxs[start:start + lengths[dist]]))
 
 
+# Define functions
 def rate(user, theta, complexity):
 
-    size = features_sizes_1(s, complexity)
+    size = lengths[complexity + 1]
     features = compute_features_1(theta, complexity).flatten()
 
-    ht = model[user, :, :size] @ features
+    ht = model[user, :, :size] @ features[sep_idxs[complexity + 1]]
     hf = fft(ht, n=K)
 
-    r = B / (K + M - 1) * np.sum(np.log2(1 + P * np.abs(hf) ** 2 / (B * N0)))
+    # Return normalized rates
+    r = np.sum(np.log2(1 + P * np.abs(hf) ** 2 / (B * N0)))
 
     return r, ht, hf
 
 
-def optimize1(user):
+def optimize1(user, n_angles=8, max_complexity=0):
+    # Get linear coefficients
     d = model[user, :, 0].reshape(-1, 1)
     c = model[user, :, 1:65]
+    central_direction = np.angle(d)
 
-    solutions = np.tile(np.sign((c * np.conj(d)).real), (1, 64))
+    # For each direction and channel tap compute rate
+    rates = np.zeros((M, n_angles))
+    for angle in range(n_angles):
+        solutions = np.tile(np.sign((c * np.conj(np.exp(1j * 2 * np.pi / n_angles * angle +
+                                                        1j * central_direction))).real), (1, 64))
 
-    rates = np.zeros(M)
-    for i in range(M):
-        fig, ax = plt.subplots(2, 1)
-        rates[i], ht, hf = rate(user, solutions[i, :], 4)
-        ax[0].plot(np.abs(ht))
-        ax[1].plot(np.abs(hf))
+        for i in range(M):
+            rates[i, angle], ht, hf = rate(user, solutions[i, :], max_complexity)
 
-    return solutions[np.argmax(rates), :]
+    # Find maximum
+    max_row, max_col = np.where(rates == np.max(rates))
 
-
-optimize1(19)
+    return np.tile(np.sign((c[max_row[0], :] * np.conj(np.exp(1j * 2 * np.pi / n_angles * max_col[0] +
+                                                              1j * central_direction[max_row[0]]))).real), 64)
