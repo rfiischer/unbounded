@@ -35,7 +35,7 @@ for i in range(16384):
 true_in_first64 = np.all(idxs == (np.tile(np.arange(64), (4, 1)) + np.array([[0], [N], [2 * N], [3 * N]])).flatten())
 print(f"Vertical configurations occur only in first 64 configurations? {true_in_first64}")
 
-fig, ax = plt.subplots(4, 4)
-for i in range(4):
-    for j in range(4):
-        ax[i, j].imshow(p1[:, 4 * i + j].reshape((64, 64)))
+fig, ax = plt.subplots(2, 2)
+for i in range(2):
+    for j in range(2):
+        ax[i, j].imshow(p1[:, np.random.randint(0, 64, 1)].reshape((64, 64)))

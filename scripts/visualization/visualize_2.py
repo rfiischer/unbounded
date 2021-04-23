@@ -49,3 +49,17 @@ plt.plot(np.abs(nlin))
 
 plt.figure()
 plt.plot(np.abs(lin))
+
+fig, ax = plt.subplots(2, 1)
+ax[0].plot(np.abs((h1 + h2) / 2), label='$|h_1 + h_2| / 2$')
+ax[0].plot(np.abs((h3 + h4) / 2), label='$|h_3 + h_4| / 2$')
+
+ax[1].plot(np.abs((h1 - h2) / 2), label='$|h_1 - h_2| / 2$')
+ax[1].plot(np.abs((h3 - h4) / 2), label='$|h_3 - h_4| / 2$')
+ax[1].set_xlabel('Configuration Index')
+ax[1].set_ylabel('$b)$')
+ax[0].set_ylabel('$a)$')
+ax[0].legend()
+ax[1].legend()
+ax[0].set_title(r'Even Order/Odd Order Terms of $h_\theta[1]$')
+ax[0].set_xticks([])
