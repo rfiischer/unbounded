@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Constants
-Nh = 40             # Number of elements in horizontal axis
-N = 40 ** 2         # Total number of elements
+Nh = 64             # Number of elements in horizontal axis
+N = 64 ** 2         # Total number of elements
 wavelength = 1      # Wavelength (can be normalized)
-ratio = 8           # Ratio between wavelength and element distance d
+ratio = 16          # Ratio between wavelength and element distance d
 
 # x and y coordinates of every element
 x = wavelength / ratio * np.tile(np.arange(0, Nh), Nh)
@@ -35,15 +35,22 @@ plt.xlabel("Eigenvalue Number")
 
 # Plot reshaped eigenvectors
 plt.figure()
-plt.imshow(v[:, 0].real.reshape(40, 40))
+plt.imshow(v[:, 0].real.reshape(Nh, Nh))
 
 # Generate sample channel
-variance = 1
-h1 = np.random.multivariate_normal([0] * N, variance * R / 2) + \
-     1j * np.random.multivariate_normal([0] * N, variance * R / 2)
+variance1 = 0.01
+h1 = np.random.multivariate_normal([0] * N, variance1 * R / 2) + \
+     1j * np.random.multivariate_normal([0] * N, variance1 * R / 2)
+
+variance2 = 1
+h2 = np.random.multivariate_normal([0] * N, variance2 * R / 2) + \
+     1j * np.random.multivariate_normal([0] * N, variance2 * R / 2)
 
 plt.figure()
 plt.scatter(h1.real, h1.imag)
 
 plt.figure()
-plt.imshow(np.abs(h1).reshape(40, 40))
+plt.imshow(np.abs(h1).reshape(Nh, Nh))
+
+plt.figure()
+plt.imshow(np.abs(h1 * h2).reshape(Nh, Nh))
