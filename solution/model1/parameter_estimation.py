@@ -88,7 +88,7 @@ for u in range(50):
 
         model[u, k, :fsize] = (sol[:fsize] + 1j * sol[fsize:]) * factor
 
-savemat('user_model1.mat', {'M': M, 'N': N, 'K': K, 's': s, 'ts': ts,
+savemat('model_solution/user_model1.mat', {'M': M, 'N': N, 'K': K, 's': s, 'ts': ts,
                             'pilotMatrix': pilotMatrix,
                             'user_model': model,
                             'best_complexity': best_complexity,

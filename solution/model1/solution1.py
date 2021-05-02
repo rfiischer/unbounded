@@ -15,8 +15,8 @@ for i in range(50):
     print(f"Non-linear, user {i}")
     solution_non_linear[:, i] = optimize1(i, n_angles, 8)
 
-savemat('solution1_linear.mat', {'theta': solution_linear})
-savemat('solution1_non_linear.mat', {'theta': solution_non_linear})
+savemat('model_solution/solution1_linear.mat', {'theta': solution_linear})
+savemat('model_solution/solution1_non_linear.mat', {'theta': solution_non_linear})
 
 # Compare the effect of non-linear features in linear optimization and vice versa
 rates_linear_linear = np.zeros(50)

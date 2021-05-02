@@ -2,7 +2,7 @@ from scipy.io import loadmat
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = loadmat("user_model1.mat")
+data = loadmat("model_solution/user_model1.mat")
 
 model = data['user_model']
 lengths = data['lengths'][0].astype(int)

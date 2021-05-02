@@ -8,7 +8,7 @@ from functions import compute_features_1
 
 # Make relative paths work by loading script from everywhere
 dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, "user_model1.mat")
+filename = os.path.join(dirname, "model_solution/user_model1.mat")
 data = loadmat(filename)
 
 # Load parameters

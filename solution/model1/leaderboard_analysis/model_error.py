@@ -1,9 +1,9 @@
 from scipy.io import loadmat
 import numpy as np
 
-from funcs import rate, K, M, B
+from solution.model1.funcs import rate, K, M, B
 
-theta = loadmat('../solution1_non_linear.mat')['theta']
+theta = loadmat('../model_solution/solution1_non_linear.mat')['theta']
 leaderboard = np.genfromtxt('../../../datasets/Leaderboard1.csv',
                             delimiter=';',
                             skip_header=True)[:, 2:]
