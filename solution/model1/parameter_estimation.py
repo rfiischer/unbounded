@@ -16,8 +16,8 @@ K = data['K'][0, 0]
 pilotMatrix = np.float64(data['pilotMatrix4N'])
 
 # Compute features
-ts = 3 * N // 4         # Training set size
-mo = 8                  # Max model order
+ts = 3 * N // 4  # Training set size
+mo = 8  # Max model order
 features = compute_features_1(pilotMatrix, mo)
 test_features = features[:, ts:]
 train_features = features[:, :ts]
@@ -40,7 +40,6 @@ for u in range(50):
         lengths[dist + 1] = fsize
 
         for k in range(20):
-
             # Log
             print(u, dist, k)
 
@@ -68,7 +67,6 @@ li_idx = li_features(features)
 model = np.zeros((50, 20, len(li_idx)), dtype=complex)
 for u in range(50):
     for k in range(20):
-
         # Log
         print(u, k)
 
@@ -89,9 +87,9 @@ for u in range(50):
         model[u, k, :fsize] = (sol[:fsize] + 1j * sol[fsize:]) * factor
 
 savemat('model_solution/user_model1.mat', {'M': M, 'N': N, 'K': K, 's': s, 'ts': ts,
-                            'pilotMatrix': pilotMatrix,
-                            'user_model': model,
-                            'best_complexity': best_complexity,
-                            'error': error,
-                            'lengths': lengths,
-                            'idxs': idxs})
+                                           'pilotMatrix': pilotMatrix,
+                                           'user_model': model,
+                                           'best_complexity': best_complexity,
+                                           'error': error,
+                                           'lengths': lengths,
+                                           'idxs': idxs})
