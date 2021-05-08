@@ -215,7 +215,7 @@ def compute_features_1(configs, max_dist):
     return features
 
 
-def compute_features_2(configs, num_templates, num_unique, template_indexes, table):
+def compute_features_2(configs, num_unique, template_indexes, table, indicator, column=False):
 
     # Setup
     s = int(np.sqrt(configs.shape[0]))
@@ -226,41 +226,49 @@ def compute_features_2(configs, num_templates, num_unique, template_indexes, tab
     features = np.zeros((size, n))
 
     # Reshape
-    configs = np.zeros((s, s, n))
-    for i in range(ss):
-        for j in range(ss):
-            configs[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = groups[:, :, ss * i + j, :]
+    if column:
+        configs = np.reshape(configs, (s, s, n))
+
+    else:
+        configs = np.zeros((s, s, n))
+        for i in range(ss):
+            for j in range(ss):
+                configs[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = groups[:, :, ss * i + j, :]
 
     # Get bias features
     features[0, :] = 1
     features[1:1 + s, :] = np.sum(groups, axis=(0, 1))
 
-    # Get feature combinations
-    combinations = []
-    for temp in template_indexes:
-        combinations.append(configs[sl(temp[0]):sl(-temp[2]), sl(temp[1]):sl(-temp[3])] *
-                            configs[sl(temp[2]):sl(-temp[0]), sl(temp[3]):sl(-temp[1])])
-
     # Compute features
-    for u in range(num_unique):
-        for t in range(num_templates):
-            features[1 + s + u * num_templates + t, :] = np.sum(combinations[t]
-                                                                [table[u * num_templates + t], :],
-                                                                axis=0)
+    counter = 0
+    for t, temp in enumerate(template_indexes):
+
+        combinations = configs[sl(temp[0]):sl(-temp[2]), sl(temp[1]):sl(-temp[3])] * \
+                       configs[sl(temp[2]):sl(-temp[0]), sl(temp[3]):sl(-temp[1])]
+
+        for u in range(num_unique):
+            if indicator[t * num_unique + u]:
+                features[1 + s + counter, :] = np.sum(combinations[table[counter], :], axis=0)
+                counter += 1
 
     return features
 
 
-def get_templates(s, ss, max_dist):
+def get_templates(s, ss, max_dist, column=False):
 
     # Get number of groups per row/column
     n_groups = int(s // ss)
 
     # Fill every group with a prime number
     group_id = np.zeros((s, s), dtype=int)
-    for i in range(n_groups):
-        for j in range(n_groups):
-            group_id[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = prime(n_groups * i + j + 1)
+    if column:
+        for i in range(s):
+            group_id[:, i] = prime(i + 1)
+
+    else:
+        for i in range(n_groups):
+            for j in range(n_groups):
+                group_id[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = prime(n_groups * i + j + 1)
 
     # Compute the coupling templates (horizontal, vertical, diagonal, ...)
     num_templates = 2 * max_dist * (max_dist + 1)
@@ -299,11 +307,18 @@ def get_templates(s, ss, max_dist):
 
     # For each template, find where we have distinct groups
     table = []
-    for u in unique:
-        for comb in combinations:
-            table.append(comb == u)
+    indicator = []
+    for comb in combinations:
+        for u in unique:
+            position = comb == u
+            if np.any(position):
+                table.append(position)
+                indicator.append(1)
 
-    return num_templates, num_unique, template_indexes, table
+            else:
+                indicator.append(0)
+
+    return num_unique, template_indexes, table, indicator
 
 
 def sl(x):
@@ -488,10 +503,12 @@ def optimize_tap(configs, h, method, a=64, dist=3):
     return c, d, solution_truncated
 
 
-def li_features(feature_matrix, tol=1e-10):
+def li_features(feature_matrix):
 
     q, r = np.linalg.qr(feature_matrix.T)
 
     diagr = np.abs(np.diagonal(r))
 
-    return np.sort(np.where(diagr >= tol)[0])
+    rank = np.linalg.matrix_rank(feature_matrix)
+
+    return np.sort(np.argsort(diagr)[-rank:])
