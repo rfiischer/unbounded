@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import fmin_tnc
+from sympy import prime
 
 
 def complex_plot(a, style='ro-'):
@@ -212,6 +213,103 @@ def compute_features_1(configs, max_dist):
                     fc += 1
 
     return features
+
+
+def compute_features_2(configs, num_templates, num_unique, template_indexes, table):
+
+    # Setup
+    s = int(np.sqrt(configs.shape[0]))
+    ss = int(np.sqrt(s))
+    n = configs.shape[-1]
+    groups = configs.reshape(ss, ss, s, -1)
+    size = len(table) + s + 1
+    features = np.zeros((size, n))
+
+    # Reshape
+    configs = np.zeros((s, s, n))
+    for i in range(ss):
+        for j in range(ss):
+            configs[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = groups[:, :, ss * i + j, :]
+
+    # Get bias features
+    features[0, :] = 1
+    features[1:1 + s, :] = np.sum(groups, axis=(0, 1))
+
+    # Get feature combinations
+    combinations = []
+    for temp in template_indexes:
+        combinations.append(configs[sl(temp[0]):sl(-temp[2]), sl(temp[1]):sl(-temp[3])] *
+                            configs[sl(temp[2]):sl(-temp[0]), sl(temp[3]):sl(-temp[1])])
+
+    # Compute features
+    for u in range(num_unique):
+        for t in range(num_templates):
+            features[1 + s + u * num_templates + t, :] = np.sum(combinations[t]
+                                                                [table[u * num_templates + t], :],
+                                                                axis=0)
+
+    return features
+
+
+def get_templates(s, ss, max_dist):
+
+    # Get number of groups per row/column
+    n_groups = int(s // ss)
+
+    # Fill every group with a prime number
+    group_id = np.zeros((s, s), dtype=int)
+    for i in range(n_groups):
+        for j in range(n_groups):
+            group_id[i * ss:(i + 1) * ss, j * ss:(j + 1) * ss] = prime(n_groups * i + j + 1)
+
+    # Compute the coupling templates (horizontal, vertical, diagonal, ...)
+    num_templates = 2 * max_dist * (max_dist + 1)
+    template_indexes = np.zeros((num_templates, 4), dtype=int)
+    counter = 0
+    for d in range(1, max_dist + 1):
+        for i in range(d + 1):
+            template_indexes[counter] = [0, 0, d, i]
+            counter += 1
+
+        for i in range(d):
+            template_indexes[counter] = [0, 0, d - i - 1, d]
+            counter += 1
+
+        for i in range(d):
+            template_indexes[counter] = [i + 1, 0, 0, d]
+            counter += 1
+
+        for i in range(d - 1):
+            template_indexes[counter] = [d, 0, 0, d - i - 1]
+            counter += 1
+
+    # Get group combinations with the templates
+    combinations = []
+    for temp in template_indexes:
+        combinations.append(group_id[sl(temp[0]):sl(-temp[2]), sl(temp[1]):sl(-temp[3])] *
+                            group_id[sl(temp[2]):sl(-temp[0]), sl(temp[3]):sl(-temp[1])])
+
+    # Get unique group combinations
+    unique = []
+    for comb in combinations:
+        unique.extend(np.unique(comb))
+
+    unique = np.unique(unique)
+    num_unique = len(unique)
+
+    # For each template, find where we have distinct groups
+    table = []
+    for u in unique:
+        for comb in combinations:
+            table.append(comb == u)
+
+    return num_templates, num_unique, template_indexes, table
+
+
+def sl(x):
+    # Returns None when x == 0
+    # We want that the slice a[:-0] return a instead of []
+    return x if x != 0 else None
 
 
 def features_sizes_1(s, max_dist):
