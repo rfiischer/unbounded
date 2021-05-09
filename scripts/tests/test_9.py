@@ -31,34 +31,36 @@ configs_inv = np.linalg.inv(configs)
 d = np.average(hk)
 
 # Get nonlinear behaviour
-na = hk.reshape((4, -1))
-nb = np.zeros(N // 4, dtype=complex)
+div = 4
+na = hk.reshape((div, -1))
+nb = np.zeros(N // div, dtype=complex)
 nb[:64] = np.average(na[1:, :], axis=0)[:64]
 nb[64:] = np.average(na, axis=0)[64:]
-n = np.tile(nb - d, 4)
+n = np.tile(nb - d, div)
 hl = np.zeros_like(hk)
 hl[:64] = hk[:64] - n[:64] - d
 
 # Get solution
 c = configs_inv @ hl
 
-# Test in remaining data
-test_configs = pilotMatrix4N
-hk_est = test_configs.T @ c + d + np.tile(n, 4)
-hk_tru = h_array[k, :]
-error = np.sum(np.abs(hk_tru - hk_est) ** 2) / np.sum(np.abs(hk_tru - np.average(hk)) ** 2)
+# Test with the real linear coefficients
+d_real = np.average((h_array[k, :N] + h_array[k, N: 2 * N]) / 2)
+hl_real = (h_array[k, :N] - h_array[k, N:2 * N])[:64] / 2 + d_real
+test_configs = pilotMatrix4N[:, :64]
+hl_est = test_configs.T @ c + d
+error = np.sum(np.abs(hl_real - hl_est) ** 2) / np.sum(np.abs(hl_real - np.average(hk[:64])) ** 2)
 print(f"Error considering nonlinearities: {error}")
 
 plt.figure()
-plt.plot(np.abs(hk_est), 'r', label='estimated')
-plt.plot(np.abs(hk_tru), 'b', label='true')
-plt.plot([0, len(hk_est) - 1], [np.abs(d), np.abs(d)], 'g', label='direct path')
+plt.plot(np.abs(hl_est), 'r', label='estimated')
+plt.plot(np.abs(hl_real), 'b', label='true')
+plt.plot([0, len(hl_real) - 1], [np.abs(d), np.abs(d)], 'g', label='direct path')
 plt.legend()
 
 plt.figure()
-plt.plot(np.angle(hk_est), 'r', label='estimated')
-plt.plot(np.angle(hk_tru), 'b', label='true')
-plt.plot([0, len(hk_est) - 1], [np.angle(d), np.angle(d)], 'g', label='direct path')
+plt.plot(np.angle(hl_est), 'r', label='estimated')
+plt.plot(np.angle(hl_real), 'b', label='true')
+plt.plot([0, len(hl_real) - 1], [np.angle(d), np.angle(d)], 'g', label='direct path')
 plt.legend()
 
 

@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.io import loadmat, savemat
-from scipy.optimize import fmin_tnc
 
 from functions import compute_features_1
 
@@ -38,7 +37,6 @@ for u in range(50):
 
         # Get nonlinear behaviour
         na = h0.reshape((4, -1))
-        nb = np.zeros(N // 4, dtype=complex)
         n = np.average(na[1:, :], axis=0)[:64] - d
         hl = h0[:64] - n - d
 
