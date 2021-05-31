@@ -1,5 +1,6 @@
 from scipy.io import loadmat
 from scipy.fft import fft
+from scipy.linalg import dft
 import numpy as np
 import os
 
@@ -18,6 +19,7 @@ N0 = 3.1613e-20
 K = data['K'][0, 0]
 M = data['M'][0, 0]
 s = data['s'][0, 0]
+F = dft(K)[:, :M]
 model = data['user_model']
 fsize = data['fsize']
 
@@ -34,6 +36,28 @@ def rate(user, theta):
     r = np.sum(np.log2(1 + P * np.abs(hf) ** 2 / (B * N0)), axis=0)
 
     return r, ht, hf
+
+
+def snr(user, theta):
+
+    features = compute_features_1(theta, 0)
+
+    ht = model[user, :, :] @ features
+    hf = fft(ht, n=K, axis=0)
+
+    # Return snr
+    r = np.average(np.abs(hf) ** 2) / (N0 * B)
+
+    return 10 * np.log10(r)
+
+
+def upper_bound(user):
+
+    # Convert the channel model to the frequency domain
+    scale = np.array([1] + [64] * 64)
+    hf = F @ (model[user, :, :] * scale)
+
+    return np.sum(np.log2(1 + P * np.abs(np.sum(np.abs(hf), axis=1)) ** 2 / (B * N0)), axis=0)
 
 
 def optimize1(user, n_angles=8):
