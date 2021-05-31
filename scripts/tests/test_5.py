@@ -20,7 +20,7 @@ h_array = data['h_array']
 M = data['M'][0, 0]
 N = data['N'][0, 0]
 thetas = data['pilotMatrix4N'].astype(np.float64)
-k = 5
+k = 1
 hk = h_array[k, :]
 
 
@@ -71,5 +71,8 @@ norm = np.sum(np.abs(hk - np.average(hk)) ** 2)
 e4 = np.sum(np.abs(hk - hk_est) ** 2) / norm
 print(f"Error using the linear component: {e4}")
 
-plt.figure()
+plt.figure(figsize=(5, 5))
 plt.imshow(np.abs(c4).reshape(64, 64))
+plt.title("|$C_n[1]|$")
+plt.tick_params(axis='x', labelsize=12)
+plt.tick_params(axis='y', labelsize=12)
