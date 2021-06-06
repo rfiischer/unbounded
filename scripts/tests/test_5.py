@@ -20,7 +20,7 @@ h_array = data['h_array']
 M = data['M'][0, 0]
 N = data['N'][0, 0]
 thetas = data['pilotMatrix4N'].astype(np.float64)
-k = 1
+k = 2
 hk = h_array[k, :]
 
 
@@ -57,8 +57,11 @@ print(f"Error with N: {e1}\n"
       f"Error with 2N: {e2}\n"
       f"Error with 4N: {e3}\n")
 
-plt.plot(np.abs(est), 'r', label='estimated')
-plt.plot(np.abs(hk), 'b', label='true')
+plt.plot(np.abs(hk), 'b', label='Target')
+plt.plot(np.abs(est), 'r', label='Linear Regression')
+plt.legend()
+plt.xlabel(r"Configuration Index $\nu$")
+plt.ylabel(fr"$|h_\theta^\nu[{k}]|$")
 plt.show()
 
 
@@ -72,7 +75,7 @@ e4 = np.sum(np.abs(hk - hk_est) ** 2) / norm
 print(f"Error using the linear component: {e4}")
 
 plt.figure(figsize=(5, 5))
-plt.imshow(np.abs(c4).reshape(64, 64))
-plt.title("|$C_n[1]|$")
+plt.imshow(np.abs(c3).reshape(64, 64))
+plt.title(f"|$C_n[{k}]|$")
 plt.tick_params(axis='x', labelsize=12)
 plt.tick_params(axis='y', labelsize=12)

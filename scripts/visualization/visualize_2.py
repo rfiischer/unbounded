@@ -19,7 +19,7 @@ p2 = pilotMatrix4N[:, N:2 * N]
 p3 = pilotMatrix4N[:, 2 * N:3 * N]
 p4 = pilotMatrix4N[:, 3 * N:]
 
-k = 1
+k = 2
 h1 = h_array[k, :N]
 h2 = h_array[k, N:2 * N]
 h3 = h_array[k, 2 * N: 3 * N]
@@ -50,18 +50,23 @@ plt.plot(np.abs(nlin))
 plt.figure()
 plt.plot(np.abs(lin))
 
-fig, ax = plt.subplots(2, 1)
-ax[0].plot(np.abs((h1 + h2) / 2), label='$|h_1^1 + h_2^1| / 2$')
-ax[0].plot(np.abs((h3 + h4) / 2), label='$|h_3^1 + h_4^1| / 2$')
+fig, ax = plt.subplots()
+ax.plot((h1 + h2) / 2)
+ax.set_ylabel(f'$|h_1^{k} + h_2^{k}| / 2$')
+ax.set_xlabel('Configuration Index $v$', fontsize=12)
 
-ax[1].plot(np.abs((h1 - h2) / 2), label='$|h_1^1 - h_2^1| / 2$')
-ax[1].plot(np.abs((h3 - h4) / 2), label='$|h_3^1 - h_4^1| / 2$')
+fig, ax = plt.subplots(2, 1)
+ax[0].plot(np.abs((h1 + h2) / 2), label=f'$|h_1^{k} + h_2^{k}| / 2$')
+ax[0].plot(np.abs((h3 + h4) / 2), label=f'$|h_3^{k} + h_4^{k}| / 2$')
+
+ax[1].plot(np.abs((h1 - h2) / 2), label=f'$|h_1^{k} - h_2^{k}| / 2$')
+ax[1].plot(np.abs((h3 - h4) / 2), label=f'$|h_3^{k} - h_4^{k}| / 2$')
 ax[1].set_xlabel('Configuration Index $v$', fontsize=12)
 ax[1].set_ylabel('b) \n Odd Order', fontsize=12)
 ax[0].set_ylabel('a) \n Even Order', fontsize=12)
 ax[0].legend(fontsize=12)
 ax[1].legend(fontsize=12)
-ax[0].set_title(r'Even Order/Odd Order Terms of $h_\theta^v[1]$')
+ax[0].set_title(fr'Even Order/Odd Order Terms of $h_\theta^v[{k}]$')
 ax[0].set_xticks([])
 
 fig, ax = plt.subplots()

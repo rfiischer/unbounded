@@ -25,13 +25,15 @@ for i in range(5):
         c = model[10 * i + j, tap, :]
         if 10 * i + j in nlos_users:
             color = "C1"
+            marker = "o"
 
         else:
             color = "C0"
+            marker = "^"
 
         signal_to_noise = snr(10 * i + j, theta[:, 10 * i + j])
 
-        ax[i, j].scatter(c[1:].real, c[1:].imag, c=color)
+        ax[i, j].scatter(c[1:].real, c[1:].imag, c=color, marker=marker)
         lim = np.max([np.max(np.abs(ax[i, j].get_ylim())), np.max(np.abs(ax[i, j].get_xlim()))])
         ax[i, j].set_xlim([-lim, lim])
         ax[i, j].set_ylim([-lim, lim])

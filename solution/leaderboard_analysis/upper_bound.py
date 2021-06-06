@@ -30,7 +30,7 @@ fig1, (ax1, ax2) = plt.subplots(2, 1)
 ax1.stem(nlos_users + 1, rate_vec[nlos_users] / ub[nlos_users],
          'C1', markerfmt='C1o', bottom=0.6, label="NLOS Users", basefmt="k")
 ax1.stem(los_users + 1, rate_vec[los_users] / ub[los_users],
-         'C0', markerfmt='C0o', bottom=0.6, label="LOS Users", basefmt="k")
+         'C0', markerfmt='C0^', bottom=0.6, label="LOS Users", basefmt="k")
 
 ax1.set_ylim([0.55, 1.05])
 ax1.yaxis.set_minor_locator(tck.AutoMinorLocator())
@@ -41,7 +41,7 @@ ax1.legend(ncol=2)
 ax2.stem(nlos_users + 1, snr_vec[nlos_users],
          'C1', markerfmt='C1o', bottom=10, label="NLOS Users", basefmt="k")
 ax2.stem(los_users + 1, snr_vec[los_users],
-         'C0', markerfmt='C0o', bottom=10, label="LOS Users", basefmt="k")
+         'C0', markerfmt='C0^', bottom=10, label="LOS Users", basefmt="k")
 ax2.set_xticks([1, 10, 20, 30, 40, 50])
 ax2.set_xlabel("User ID")
 ax2.set_ylabel("SNR (dB)")
@@ -52,7 +52,7 @@ ax.stem(np.arange(1, 51), ub,
         'C1', markerfmt='C1o', bottom=0, label="Upper Bound", basefmt="k")
 
 ax.stem(np.arange(1, 51), rate_vec,
-        'C0', markerfmt='C0o', bottom=0, label="Achieved (estimated)", basefmt="k")
+        'C0', markerfmt='C0^', bottom=0, label="Achieved (estimated)", basefmt="k")
 ax.set_xticks([1, 10, 20, 30, 40, 50])
 ax.set_xlabel("User ID")
 ax.set_ylabel("Rate (Mbps)")
